@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Myanmar 2D Tracker</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #eef2f3; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; transition: 0.3s; }
+        button:hover { background: #0056b3; }
+        .reset-btn { background: #dc3545; margin-top: 10px; }
+        .item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; background: #fafafa; margin-top: 5px; border-radius: 5px; }
+        .total { font-weight: bold; font-size: 1.4em; color: #28a745; margin-top: 20px; text-align: center; border-top: 2px solid #eee; padding-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>စာရင်းမှတ်စနစ် PRO</h2>
+    <input type="text" id="userInput" placeholder="ဥပမာ - 00 1000" onkeypress="handleEnter(event)">
+    <button onclick="addData()">ပေါင်းထည့်မည်</button>
+    <button class="reset-btn" onclick="clearData()">စာရင်းအားလုံးဖျက်မည်</button>
+
+    <div id="list" style="margin-top: 20px; max-height: 300px; overflow-y: auto;"></div>
+    <div class="total" id="totalDisplay">စုစုပေါင်း - 0 ကျပ်</div>
+</div>
+
+<script>
+    let dataStorage = JSON.parse(localStorage.getItem('myLists')) || [];
+
+    // စဖွင့်ချင်းရှိတာတွေ ပြပေးရန်
+    renderList();
+
+    function handleEnter(event) {
+        if (event.key === "Enter") addData();
+    }
+
+    function addData() {
+        const input = document.getElementById('userInput');
+        const value = input.value.trim();
+        const parts = value.split(" ");
+
+        if (parts.length === 2) {
+            const item = { number: parts[0], amount: parseInt(parts[1]) };
+            if (!isNaN(item.amount)) {
+                dataStorage.push(item);
+                localStorage.setItem('myLists', JSON.stringify(dataStorage));
+                input.value = "";
+                renderList();
+            }
+        }
+    }
+
+    function renderList() {
+        const list = document.getElementById('list');
+        const totalDisplay = document.getElementById('totalDisplay');
+        list.innerHTML = "";
+        let total = 0;
+
+        dataStorage.slice().reverse().forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'item';
+            div.innerHTML = `<span>နံပါတ်: <b>${item.number}</b></span> <span>${item.amount.toLocaleString()} ကျပ်</span>`;
+            list.appendChild(div);
+            total += item.amount;
+        });
+
+        totalDisplay.innerText = `စုစုပေါင်း - ${total.toLocaleString()} ကျပ်`;
+    }
+
+    function clearData() {
+        if(confirm("စာရင်းအားလုံးကို ဖျက်မှာ သေချာပါသလား?")) {
+            dataStorage = [];
+            localStorage.removeItem('myLists');
+            renderList();
+        }
+    }
+</script>
+
+</body>
+</html>
